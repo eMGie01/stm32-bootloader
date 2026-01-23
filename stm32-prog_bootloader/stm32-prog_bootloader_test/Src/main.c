@@ -15,16 +15,47 @@
  *
  ******************************************************************************
  */
-#include "stm32l476xx.h"
+#define STM32L476xx
+#include "stm32l4xx.h"
+#include "system_stm32l4xx.h"
+
+uint32_t SystemCoreClock = 40000000;
+
 #include <stdint.h>
 
 void __systemClock_Config_40MHz(void);
+void GPIOx_Init(void);
 
 int main(void)
 {
+    __systemClock_Config_40MHz();
+    GPIOx_Init();
     /* Loop forever */
 	for(;;);
 }
+
+/**
+ * @brief GPIO_Init() is used for initialization of GPIOs.
+ *
+ * @param void
+ * @return None
+ */
+ void GPIOx_Init(void) {
+
+    /* GPIOA */
+    RCC->AHB2ENR |= RCC_AHB2ENR_GPIOAEN; /* Turn on peripherial clock (for GPIOA) */
+    (void)RCC->AHB2ENR; /* Wait one cycle (by dummy reading the register value) after enabling peripherial clock */
+    /* PA5 */
+    GPIOA->BSRR = 1U << GPIO_BSRR_BR5_Pos; /* Turn on the Bit set/reset register to reset state */
+    GPIOA->MODER &= ~GPIO_MODER_MODE5; /* Reset GPIOx Pin MODE Bit value */
+    GPIOA->MODER |= 1U << GPIO_MODER_MODE5_Pos; /* Set GPIOx Pin as output (0b01) */
+    GPIOA->OTYPER &= ~GPIO_OTYPER_OT5; /* Set GPIOx Pin's output as push-pull (0b0) */
+    GPIOA->OSPEEDR &= ~GPIO_OSPEEDR_OSPEED5; /* Set GPIOx Pin's output speed to Low speed (0b00) */
+    GPIOA->PUPDR &= ~GPIO_PUPDR_PUPD5; /* Set GPIOx Pin's output to no pull-up, no pull-down (0b00) */
+    
+    /* ... */
+    return;
+ }
 
 /**
  * @brief __systemClock_Config_40MHz() is used for initialization and configuration
@@ -45,7 +76,7 @@ void __systemClock_Config_40MHz(void) {
     FLASH->ACR = FLASH_ACR_LATENCY_2WS | FLASH_ACR_PRFTEN | FLASH_ACR_ICEN | FLASH_ACR_DCEN; /* Configure Flash */
 
     /* Configure PLL -> ((ext) 8MHz / 2) * 20 / 2 = 40MHz */
-    RCC->PLLCFGR = RCC_PLLCFGR_PLLSRC_HSE | 2 << RCC_PLLCFGR_PLLM_Pos | 20 << RCC_PLLCFGR_PLLN_Pos | 0 << RCC_PLLCFGR_PLLR_Pos | RCC_PLLCFGR_PLLREN;
+    RCC->PLLCFGR = RCC_PLLCFGR_PLLSRC_HSE | 2U << RCC_PLLCFGR_PLLM_Pos | 20U << RCC_PLLCFGR_PLLN_Pos | 0U << RCC_PLLCFGR_PLLR_Pos | RCC_PLLCFGR_PLLREN;
     /* HSE clock selected as PLL, ... , clock entry (11 to [Bit1 and Bit0]) */
     /* PLLM = 2, PLLN = 20, PLLR = 2 => 40MHz */
 
