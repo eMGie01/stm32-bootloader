@@ -43,6 +43,10 @@ set(cpu_PARAMS
 # Sources
 set(sources_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/Src/main.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/Src/clock.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/Src/systick.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/Src/gpio.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/Src/uart.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Src/startup_stm32l476xx.S
 )
 
@@ -114,6 +118,9 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
     # Configuration specific
     $<$<CONFIG:Debug>:DEBUG>
     $<$<CONFIG:Release>: >
+
+    # Target name
+    STM32L476xx
 )
 
 # Add linked libraries
